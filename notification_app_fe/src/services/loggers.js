@@ -1,17 +1,17 @@
-// logging_middleware/logger.js
-
 import axios from "axios";
+
+const ACCESS_TOKEN =
+  import.meta.env.VITE_ACCESS_TOKEN;
 
 export const Log = async (
   stack,
   level,
   pkg,
-  message,
-  token
+  message
 ) => {
   try {
-    const response = await axios.post(
-      "http://4.224.186.213/evaluation-service/logs",
+    await axios.post(
+      "/api/evaluation-service/logs",
       {
         stack,
         level,
@@ -20,13 +20,14 @@ export const Log = async (
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
         },
       }
     );
-
-    return response.data;
   } catch (error) {
-    console.error("Logging failed:", error);
+    console.error(
+      "Logging failed:",
+      error.message
+    );
   }
 };

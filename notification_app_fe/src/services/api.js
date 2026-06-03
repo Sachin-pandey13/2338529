@@ -1,4 +1,10 @@
+import axios from "axios";
 import { Log } from "./loggers";
+
+const API_URL = "/api";
+
+const ACCESS_TOKEN =
+  import.meta.env.VITE_ACCESS_TOKEN;
 
 export const getNotifications = async (
   page = 1,
@@ -13,47 +19,35 @@ export const getNotifications = async (
       `Fetching notifications page=${page} limit=${limit} type=${type || "All"}`
     );
 
-    const data = [
+    let url =
+      `${API_URL}/notifications?page=${page}&limit=${limit}`;
+
+    if (type) {
+      url += `&notification_type=${type}`;
+    }
+
+    const response = await axios.get(
+      url,
       {
-        ID: "1",
-        Type: "Event",
-        Message: "Tech Fest",
-        Timestamp: "2026-04-22 17:49:18",
-      },
-      {
-        ID: "2",
-        Type: "Placement",
-        Message: "Microsoft Hiring",
-        Timestamp: "2026-04-22 17:51:18",
-      },
-      {
-        ID: "3",
-        Type: "Result",
-        Message: "Mid Sem Result",
-        Timestamp: "2026-04-22 17:50:18",
-      },
-      {
-        ID: "4",
-        Type: "Placement",
-        Message: "AMD Hiring",
-        Timestamp: "2026-04-22 17:55:18",
-      },
-      {
-        ID: "5",
-        Type: "Event",
-        Message: "Hackathon",
-        Timestamp: "2026-04-22 17:58:18",
-      },
-    ];
+        headers: {
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
+        },
+      }
+    );
+
+    const notifications =
+      response.data.data ||
+      response.data.notifications ||
+      response.data;
 
     await Log(
       "frontend",
       "info",
       "api",
-      `Fetched ${data.length} notifications`
+      `Fetched ${notifications.length || 0} notifications`
     );
 
-    return data;
+    return notifications;
   } catch (error) {
     await Log(
       "frontend",
@@ -62,6 +56,7 @@ export const getNotifications = async (
       error.message
     );
 
+    console.error(error);
     return [];
   }
 };
